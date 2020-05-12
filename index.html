@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morski shah</title>
+
+    <style>
+        .grid-container {
+            width: 60rem;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(3, 310px);
+            grid-gap:10px;
+            padding: 10px;
+        }
+
+        .grid-item {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.8);
+            text-align: center;
+            height: 200px;
+            max-width: 310px;
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 10em;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #modal {
+            display: none;
+            position: fixed; /* Stay in place */
+            z-index: 22222; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%; /* Could be more or less, depending on screen size */
+        }
+        
+
+        /* The Close Button */
+        #newGame {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: red;
+        }
+
+        :root {
+            --main-bg-color: blue;
+        }
+
+        .grid-item:hover:not(.taken){
+            background-color:var(--main-bg-color);
+        }
+
+        .player_blue {
+            background: blue;
+        }
+
+        .player_red {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-container"></div>
+    
+    <div id="modal">
+        <div class="modal-content">
+            <button id="newGame">New Game</button>
+            <h3>Player <span id="winnerAnnouncement"></span> wins the game!!!</h3>
+        </div>
+    </div>
+
+      <script>
+            var player, table;
+            let root = document.documentElement;
+            var modal = document.querySelector("#modal");
+
+
+            function drawBoardAndArray() {
+                const gridContainer = document.querySelector(".grid-container");
+                gridContainer.innerHTML ='';
+                player = true;
+                root.style.setProperty('--main-bg-color', playerTurnColor());
+                modal.style = "display: none";
+
+                table = [[null, null, null],
+                    [null, null, null],
+                    [null, null, null]];
+
+                for(let row = 0; row < 3; row++ ) {
+                    for (let col = 0; col < 3; col++) {
+                            gridContainer.innerHTML += `<div class='grid-item' id='${row}@${col}'> </div>`; 
+                        }
+                } 
+            }
+
+            function addEvents() {
+                document.querySelectorAll('.grid-item').forEach(item => {
+                    item.addEventListener('click', event => {
+                        markCell(item);
+                        if(isWin()) modalWinning();
+                        // modalWinning();
+                        player = !player;
+                        root.style.setProperty('--main-bg-color', playerTurnColor());
+
+
+                    }, {once: true});
+
+                    item.addEventListener('mouseenter', function() {
+                        if(item.classList.contains("taken")) return false;
+                        item.innerHTML = player?"X":"O"
+                    });
+
+                    item.addEventListener('mouseleave', function() {
+                        if(item.classList.contains("taken")) return false;
+                        item.innerHTML = " ";
+                    });
+
+                })
+            }
+
+          function init() {
+            drawBoardAndArray();
+            addEvents();
+          }
+
+          init();
+
+
+          function playerTurnColor() {
+              return player ? 'blue' : 'red';
+          }
+
+
+        function isWin() {
+            var verticalWinsArray = [0,0,0];
+            var indexation = 0;
+            var diagonalWInArray = [0, 0];
+            var indexation = 0;
+
+            return table.some((row) => {
+            var horizontalWin = 0;
+                row.forEach((col, index) => {
+                    if(col == player) {
+                        verticalWinsArray[index]++;
+                        horizontalWin++;
+                    }
+                })
+
+                if(row[indexation] == player) {
+                    diagonalWInArray[0]++;
+                }
+
+                if(row.reverse()[indexation] == player) {
+                    diagonalWInArray[1]++;
+                }
+                indexation++;
+
+                if(horizontalWin  == 3 || verticalWinsArray.includes(3) || diagonalWInArray.includes(3)) return true;
+            })
+
+        }
+
+        function markCell(item) {
+            // Visual mark cell
+            item.innerHTML = player ? "X" : "O";
+            item.classList.add(`player_${playerTurnColor()}`, 'taken');
+
+            // Mark in array
+            cell = event.target.id.split('@')
+            table[cell[0]][cell[1]] = player;
+        }
+
+        function modalWinning() {
+            modal.style = "display: block";
+            var winnerAnnouncement = document.querySelector("#winnerAnnouncement").innerHTML = playerTurnColor();
+            var newGame = document.querySelector("#newGame").addEventListener('click', (el) => {
+                init();
+            })
+
+            
+        }
+
+
+
+
+      </script>
+</body>
+</html>
